@@ -1,6 +1,7 @@
-# macOS 微信双开（同时登录两个微信账号）完整方法
+# macOS 微信双开 / 多开（在桌面同时登录多个微信账号）完整方法
 
 > 面向「读完即可独立复现」的运行手册（runbook）。
+> 「双开」只是「N=2」的特例，同一套方法可延伸到第三、第四个……（见第 9 章「多开」）。
 > 读者既可以是人，也可以是另一个 AI agent。
 > 本文所有结论都经过在一台真实 Mac（Apple M2 Pro / arm64，SIP 开启，Gatekeeper 启用）上的逐项实测核验。
 
@@ -245,6 +246,10 @@ xxd ~/Library/Containers/com.tencent.xinWeChat2/Data/Documents/app_data/radium/d
 两个文件都是 16 字节 ASCII 设备 ID，内容应当**不同**（本机实测确为两个互不相同的随机串）。
 不同 = 服务器眼里两台设备 = 双开成立。
 
+> 重要时机说明：`device_uuid_0` 是在**登录时**才铸出来的，不是 App 一启动就有。
+> 一个刚克隆、还停在扫码界面、尚未登录的新实例，它的容器里**还没有** `device_uuid_0`（本机实测：WeChat3 启动后容器已建好，但登录前 `radium/` 下只有 `cache/web/mmkv` 等，没有 `device_uuid_0`、`ilink`、`users`）。
+> 所以对一个**尚未登录**的新实例，先用 5.1 / 5.2 的「独立容器 + 独立进程 bundle id」来确认隔离；等扫码登录后，再用本节的 `xxd` 对比设备 ID。
+
 ### 5.4 确认副本的签名身份
 
 ```bash
@@ -378,7 +383,85 @@ tccutil reset All com.tencent.xinWeChat2
 
 ---
 
-## 9. 附录 · 本机实测取证
+## 9. 多开：再开第三个、第四个……
+
+双开只是「N = 2」的特例。
+同一套机制可以继续延伸：**每多一个实例，就多一份「独立 bundle id + 独立副本 App + 独立数据目录」**，彼此互不顶下线。
+
+唯一约束：每个实例的 `CFBundleIdentifier` 必须**两两不同**（也都要和原版不同）。
+
+用本仓库的脚本开第三个，只需换三个变量：
+
+```bash
+SECOND_ID="com.tencent.xinWeChat3" \
+DST_APP="/Applications/WeChat3.app" \
+SECOND_NAME="WeChat3" \
+./clone-wechat-dual.sh
+```
+
+开第四个、第五个，照此规律继续，甚至一行循环批量生成：
+
+```bash
+for n in 2 3 4 5; do
+  SECOND_ID="com.tencent.xinWeChat${n}" \
+  DST_APP="/Applications/WeChat${n}.app" \
+  SECOND_NAME="WeChat${n}" \
+  ./clone-wechat-dual.sh
+done
+```
+
+要点：
+
+- **逐实例幂等**：重跑某个实例只会重建那一个副本壳，不影响其它实例，也不动各自的数据目录。
+- **实例间完全独立**：各有自己的 `~/Library/Containers/com.tencent.xinWeChatN` 与各自的 `device_uuid_0`，所以 N 个账号能同时在线。
+- **每个新实例首次启动只是建好容器、停在扫码界面**；要它真正上线，得用一个**新的、未在本机原版登录过的**微信号扫码登录。登录后它才会在自己的容器里铸出独立设备 ID。
+- **能开几个由内存 / CPU 决定，而非本方法**——每个实例都是一份完整的微信（含各自的 helper 进程树），开越多越吃资源。
+- 本机已实测创建到第三个（WeChat3）：三者各有**独立 bundle id、独立容器、独立进程树**，隔离成立；设备 ID 在各自登录后分别铸成、互不相同（详见附录）。
+
+---
+
+## 10. 命名说明：改名字会有影响吗？
+
+一个微信副本其实有**三个不同层面的「名字」**，作用完全不同，分清楚就不会踩坑：
+
+| 「名字」 | 在哪看到 | 由什么决定 | 改了有影响吗？ |
+|---|---|---|---|
+| ① App 文件名 | Finder 里的 `WeChat3.app` | 文件路径 | **无影响**，随便改 |
+| ② 显示名 | 程序坞 / 菜单栏 / 切换器里的名字 | `CFBundleName` / `CFBundleDisplayName` | **无影响**，随便改 |
+| ③ bundle id | 看不见（藏在 `Info.plist` 里） | `CFBundleIdentifier` | **核心开关**，决定数据目录与设备身份 |
+
+### ①②：文件名和显示名——随便改，零影响
+
+macOS 是靠 **bundle id**（③）认 App 的，不是靠文件名或显示名。
+
+- 把 `/Applications/WeChat3.app` 改名成 `微信-工作.app`、`小号.app`、`张三的微信.app` 都行，App 照常运行、账号照常在线。
+  唯一注意：如果你用脚本管理，改了文件名记得把脚本里的 `DST_APP` 路径同步改一下。
+- 把 `CFBundleName` 改成「工作微信」「小号」之类，只为在菜单栏 / 切换器里一眼区分，对双开 / 多开毫无影响。
+
+> 一个本机实测的小细节：这套做法其实只改了 `CFBundleName`，**没改 `CFBundleDisplayName`**——三个副本的 `CFBundleDisplayName` 都还是「WeChat」。
+> 所以若你发现程序坞里几个微信显示的名字一样、不好区分，可以顺手把每个副本的 `CFBundleDisplayName` 也改掉：
+>
+> ```bash
+> /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 工作微信" /Applications/WeChat3.app/Contents/Info.plist
+> codesign --force --deep --sign - /Applications/WeChat3.app   # 改完 plist 必须重签
+> ```
+>
+> 改显示名同样**不影响**账号和数据，纯为了好认。注意：任何对 `Info.plist` 的改动之后都要重新 ad-hoc 重签。
+
+### ③：bundle id——这才是关键，且有两条铁律
+
+- **铁律一：每个实例的 bundle id 必须唯一**（且和原版不同）。这是多开成立的唯一前提。
+  至于叫 `com.tencent.xinWeChat3`、`com.tencent.xinWeChat.work` 还是 `com.foo.bar`，**不重要**——微信把它当成一个不透明的身份键，只要彼此不同即可。沿用 `com.tencent.xinWeChatN` 只是图个整齐。
+- **铁律二：登录之后，不要再改 bundle id。**
+  因为数据目录是 `~/Library/Containers/<bundle id>`，与 bundle id 死绑。
+  你若把一个已登录实例的 bundle id 改掉，它下次启动会去找一个**全新的空目录**，等于变成一个没登录过的新实例——要重新扫码登录；而原来那份会话数据停在旧目录里被「孤立」（没删，但连不上了）。
+  想换名字区分，改 ① 文件名或 ② 显示名就够了，**绝不要动 ③**。
+
+一句话总结：**想怎么叫就怎么叫（①②），但 bundle id（③）只需保证「人人不同」，且一旦登录就别再碰。**
+
+---
+
+## 11. 附录 · 本机实测取证
 
 以下为本机（macOS / Apple M2 Pro / arm64，SIP 开启，Gatekeeper 启用）确切事实，作为可信度背书（个人账号标识已脱敏）：
 
@@ -397,6 +480,10 @@ tccutil reset All com.tencent.xinWeChat2
 核验要点：
 
 - 二者均为 universal binary（x86_64 + arm64），微信版本 4.1.10（build 268851）。
+- **多开实测**：用本仓库脚本在本机又克隆出第三个实例 `WeChat3`（`com.tencent.xinWeChat3`）。
+  结果：ad-hoc 签名校验通过、无 quarantine 直接启动、主进程在跑（含 `--bundle-id=…xinWeChat3` 的 helper 进程树）、自建独立容器 `~/Library/Containers/com.tencent.xinWeChat3`（真实目录，`find -type l` 零软链接）。
+  登录前其 `radium/` 下只有 `cache`/`web`/`mmkv` 等、尚无 `device_uuid_0`，印证「设备 ID 在登录时才铸」；扫码登录后即会铸出与前两者互不相同的设备 ID。
+- 命名三层（实测）：三个实例的 `CFBundleDisplayName` 均仍为 `WeChat`，`CFBundleName` 分别为 `WeChat`/`WeChat2`/`WeChat3`，`CFBundleIdentifier` 分别为 `com.tencent.xinWeChat`/`…2`/`…3`；数据目录严格按 `CFBundleIdentifier` 区分——印证「文件名 / 显示名随便改、bundle id 才是关键」（详见第 10 章）。
 - 嵌套 bundle id：两包各 49 个 `Info.plist`，逐一比对 `CFBundleIdentifier`，**仅顶层 1 处不同**，其余 48 个嵌套 id 完全一致。
 - 数据隔离：两个目录为各自独立的真实数据目录，非软链接、非共享（`find -type l` 零条软链接），分属两个不同的 `wxid`。
 - 设备身份：两个目录里的 `device_uuid_0` 逐字节不同——这是「服务器视作两台设备」最直接的证据。
