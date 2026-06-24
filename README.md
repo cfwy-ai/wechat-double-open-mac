@@ -36,13 +36,13 @@
 
 | 手绘插画 | 赛博朋克 | 炫彩渐变 |
 |:---:|:---:|:---:|
-| [<img src="./icons/basic/hand-drawn.png" width="220" alt="手绘插画">](./icons/basic/hand-drawn.png) | [<img src="./icons/basic/cyberpunk.png" width="220" alt="赛博朋克">](./icons/basic/cyberpunk.png) | [<img src="./icons/basic/color-gradient.png" width="220" alt="炫彩渐变">](./icons/basic/color-gradient.png) |
+| [<img src="./icons/basic/hand-drawn.png?v=2" width="220" alt="手绘插画">](./icons/basic/hand-drawn.png) | [<img src="./icons/basic/cyberpunk.png" width="220" alt="赛博朋克">](./icons/basic/cyberpunk.png) | [<img src="./icons/basic/color-gradient.png" width="220" alt="炫彩渐变">](./icons/basic/color-gradient.png) |
 
 ### IP 联名风格
 
 | 《鬼灭之刃》 | 《咒术回战》 | 《进击的巨人》 |
 |:---:|:---:|:---:|
-| [<img src="./icons/ip-collaboration/demon-slayer.png" width="220" alt="鬼灭之刃">](./icons/ip-collaboration/demon-slayer.png) | [<img src="./icons/ip-collaboration/jujutsu-kaisen.png" width="220" alt="咒术回战">](./icons/ip-collaboration/jujutsu-kaisen.png) | [<img src="./icons/ip-collaboration/attack-on-titan.png" width="220" alt="进击的巨人">](./icons/ip-collaboration/attack-on-titan.png) |
+| [<img src="./icons/ip-collaboration/demon-slayer.png" width="220" alt="鬼灭之刃">](./icons/ip-collaboration/demon-slayer.png) | [<img src="./icons/ip-collaboration/jujutsu-kaisen.png" width="220" alt="咒术回战">](./icons/ip-collaboration/jujutsu-kaisen.png) | [<img src="./icons/ip-collaboration/attack-on-titan.png?v=2" width="220" alt="进击的巨人">](./icons/ip-collaboration/attack-on-titan.png) |
 
 | 《死神》 | 《海贼王》 | 《我独自升级》 |
 |:---:|:---:|:---:|
