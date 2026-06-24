@@ -1,58 +1,78 @@
-# 微信多开（Mac）
+# 微信多开 Mac
 
-> 在一台 Mac 上同时登录多个微信，互不顶下线。
+> 在 Mac 上实现微信多开，同时登录多个微信，并且不会相互顶掉。
 
 ## 解决什么
 
-一台电脑想同时挂好几个微信——工作一个、生活一个、小号一个。
+一台电脑想同时登录多个微信，例如工作微信、生活微信和其他小号。
 
-官方微信只让你登一个：扫码登第二个，第一个就被顶下线。
+官方微信只允许登录一个账号：扫码登录第二个，第一个就会被顶下线。
 
-这个仓库让多个微信各自独立、同时在线。
+这个仓库可以让多个微信相互独立、同时在线。
 
-**仅限 macOS**（Apple 芯片 / Intel 都行；Windows 不适用）。
+**理论上可以无限制开启（只要内存够大），亲测可以同时开启 10 个以上的微信且互不顶号。**
 
-## 怎么用
+仅限 macOS，支持 Apple 芯片和 Intel 芯片。
+
+## 使用方法
 
 这个仓库是写给 AI Agent 读的，你不用自己敲命令。
 
-把仓库交给你的 Agent（Claude Code / Codex 等），说一句：
+把仓库交给你的 Agent（Claude Code、Codex 等），告诉它：
 
 > 读这个仓库的 `GUIDE.md`，帮我在 Mac 上装好微信多开。
 
-剩下的它会照 `GUIDE.md` 做完，并**反过来问你**：要开几个、每个叫什么名字、要不要换个图标区分。
+接下来，Agent 会询问你想开几个微信、每个微信叫什么名字，以及是否需要更换图标。
 
-## 会卡吗？先看设备
+## 自由定制
 
-微信多开很吃内存。
+每个多开的微信都可以自由设置名称，例如「微信工作」「微信生活」「微信小号」。
 
-每个微信都是一个完整的重型应用，主微信尤其重；开多个就容易把内存占满、拖慢主微信（尤其缩放窗口时）。
+图标也可以重新选择，让不同的微信在程序坞里一眼就能区分。
 
-**瓶颈只在内存，不在芯片**——任意 Apple Silicon（M 系列）都够快。
+点击下面的图标可以查看原图。
 
-| 内存 | 体验 |
+### 基础风格
+
+| 手绘插画 | 赛博朋克 | 炫彩渐变 |
+|:---:|:---:|:---:|
+| [<img src="./icons/basic/hand-drawn.png" width="220" alt="手绘插画">](./icons/basic/hand-drawn.png) | [<img src="./icons/basic/cyberpunk.png" width="220" alt="赛博朋克">](./icons/basic/cyberpunk.png) | [<img src="./icons/basic/color-gradient.png" width="220" alt="炫彩渐变">](./icons/basic/color-gradient.png) |
+
+### IP 联名风格
+
+| 《鬼灭之刃》 | 《咒术回战》 | 《进击的巨人》 |
+|:---:|:---:|:---:|
+| [<img src="./icons/ip-collaboration/demon-slayer.png" width="220" alt="鬼灭之刃">](./icons/ip-collaboration/demon-slayer.png) | [<img src="./icons/ip-collaboration/jujutsu-kaisen.png" width="220" alt="咒术回战">](./icons/ip-collaboration/jujutsu-kaisen.png) | [<img src="./icons/ip-collaboration/attack-on-titan.png" width="220" alt="进击的巨人">](./icons/ip-collaboration/attack-on-titan.png) |
+
+| 《死神》 | 《海贼王》五档尼卡 | 《我独自升级》 |
+|:---:|:---:|:---:|
+| [<img src="./icons/ip-collaboration/bleach.png" width="220" alt="死神">](./icons/ip-collaboration/bleach.png) | [<img src="./icons/ip-collaboration/one-piece-gear-five.png" width="220" alt="海贼王五档尼卡">](./icons/ip-collaboration/one-piece-gear-five.png) | [<img src="./icons/ip-collaboration/solo-leveling.png" width="220" alt="我独自升级">](./icons/ip-collaboration/solo-leveling.png) |
+
+更多图标说明见 [`icons/`](./icons/)。
+
+## 性能说明
+
+微信多开主要占用内存，通常不是芯片性能不够。
+
+每个微信都是一个完整应用，开启数量越多，占用的内存就越大。
+
+| 内存 | 使用体验 |
 |---|---|
-| 16 GB | 能开，但同时开两个以上、缩放主微信窗口会卡。够用但紧张。 |
-| 24 GB | 双开顺手。**推荐起步。** |
-| 32 GB 以上 | 多开（三个以上）从容。 |
+| 16 GB | 可以多开，但同时运行多个微信时可能出现卡顿。 |
+| 24 GB | 双开比较顺畅，推荐起步。 |
+| 32 GB 以上 | 同时运行三个以上微信更加从容。 |
 
-> Apple 芯片内存焊死、事后加不了，买机器时就要选够。
+如果已经出现卡顿，可以按下面的顺序处理：
 
-## 已经卡了怎么办
+1. 不用的微信及时退出，需要时再打开。
+2. 关闭占用内存较多的浏览器标签、Slack、VS Code 等应用。
+3. 在微信的存储空间管理中清理缓存和大文件，并关闭不需要的自动下载。
+4. 尽量减少连续拖拽和缩放微信窗口。
 
-按效果排序：
+也可以把下面这句话发给你的 Agent：
 
-1. **用才开，不用就关。** 日常挂「主微信 + 一个」，第三个要用再开。
-2. **先关吃内存的大户。** 浏览器一堆标签、Slack、VS Code 这类很占内存，开第二个微信前先关。
-3. **给主微信瘦身**（最重的那个）：微信 → 设置 → 通用 → 存储空间 → 管理，清缓存、清大文件；关掉自动下载、用不到的视频号和小程序。
-4. **少连续拖拽缩放窗口。** 卡顿在实时改窗口大小时最重，固定尺寸或全屏基本不卡。
-
-**懒得自己弄？让 Agent 帮你。** 把这句发给你的 Agent：
-
-> 读这个仓库 `GUIDE.md` 的「§6.6 安全瘦身」，先帮我看看内存被谁占了，再指导我给主微信瘦身、释放内存。注意：不要删我的任何聊天数据。
+> 读这个仓库 `GUIDE.md` 的「§6.6 安全瘦身」，先帮我检查内存占用，再指导我给主微信瘦身。不要删除任何聊天数据。
 
 ## 想看细节
 
-原理、命令、改名、换图标、性能瘦身、排错、卸载——全在 [`GUIDE.md`](./GUIDE.md)。
-
-图标放 [`icons/`](./icons/)。
+完整的安装原理、操作命令、名称修改、图标更换、性能优化、故障排查和卸载方法，见 [`GUIDE.md`](./GUIDE.md)。
